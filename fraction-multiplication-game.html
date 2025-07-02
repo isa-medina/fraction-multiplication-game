@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraction Multiplication Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .game-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .question-box {
+            background-color: #e0f2fe;
+            border: 2px solid #90caf9;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a202c;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .fraction-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+        }
+        .fraction-numerator {
+            font-size: 2.2rem;
+        }
+        .fraction-line {
+            width: 50px;
+            height: 3px;
+            background-color: #1a202c;
+            margin: 2px 0;
+        }
+        .fraction-denominator {
+            font-size: 2.2rem;
+        }
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .input-group input {
+            width: 80px;
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+        .button-primary {
+            background-color: #4299e1;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button-primary:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+        .button-primary:active {
+            transform: translateY(0);
+        }
+        .feedback-message {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        .feedback-correct {
+            color: #2f855a;
+        }
+        .feedback-incorrect {
+            color: #e53e3e;
+        }
+        .score-display {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-top: 10px;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+                gap: 15px;
+            }
+            .question-box {
+                font-size: 1.5rem;
+                padding: 15px;
+            }
+            .fraction-numerator, .fraction-denominator {
+                font-size: 1.8rem;
+            }
+            .fraction-line {
+                width: 40px;
+            }
+            .input-group input {
+                width: 60px;
+                padding: 10px;
+                font-size: 1rem;
+            }
+            .button-primary {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            .feedback-message {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-4">Fraction Multiplication Challenge!</h1>
+        <div class="question-box" id="questionBox">
+            <!-- Question will be displayed here -->
+        </div>
+        <div class="input-group">
+            <input type="number" id="answerNumerator" placeholder="Num" class="rounded-lg focus:ring-2 focus:ring-blue-400">
+            <span class="text-2xl font-bold">/</span>
+            <input type="number" id="answerDenominator" placeholder="Den" class="rounded-lg focus:ring-2 focus:ring-blue-400">
+        </div>
+        <button id="checkAnswerBtn" class="button-primary">Check Answer</button>
+        <div id="feedbackMessage" class="feedback-message"></div>
+        <div id="scoreDisplay" class="score-display">Score: 0 / 0</div>
+
+        <!-- The Modal -->
+        <div id="messageModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close-button" id="closeModalBtn">&times;</span>
+                <p id="modalMessage" class="text-lg font-semibold"></p>
+                <button id="modalOkBtn" class="button-primary mt-4">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to display a custom modal message instead of alert()
+        function showModal(message) {
+            const modal = document.getElementById('messageModal');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+            modal.style.display = 'flex'; // Use flex to center content
+        }
+
+        // Close modal when 'x' or 'OK' button is clicked
+        document.getElementById('closeModalBtn').onclick = function() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+        document.getElementById('modalOkBtn').onclick = function() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        let currentQuestion = {};
+        let score = 0;
+        let totalQuestions = 0;
+
+        // Function to generate a random integer between min and max (inclusive)
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Function to find the greatest common divisor (GCD) using Euclidean algorithm
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
+        // Function to simplify a fraction
+        function simplifyFraction(numerator, denominator) {
+            const common = gcd(numerator, denominator);
+            return {
+                numerator: numerator / common,
+                denominator: denominator / common
+            };
+        }
+
+        // Function to generate a new fraction multiplication problem
+        function generateQuestion() {
+            let num1, den1, num2, den2;
+
+            // Ensure denominators are not too small to avoid trivial problems
+            den1 = getRandomInt(2, 10);
+            num1 = getRandomInt(1, den1 - 1); // num1 < den1 for proper fraction
+
+            den2 = getRandomInt(2, 10);
+            num2 = getRandomInt(1, den2 - 1); // num2 < den2 for proper fraction
+
+            // Occasionally include a whole number multiplication
+            if (Math.random() < 0.3) { // 30% chance of a whole number
+                if (Math.random() < 0.5) { // Whole number as first operand
+                    num1 = getRandomInt(1, 5); // Small whole number
+                    den1 = 1;
+                } else { // Whole number as second operand
+                    num2 = getRandomInt(1, 5); // Small whole number
+                    den2 = 1;
+                }
+            }
+
+            const questionBox = document.getElementById('questionBox');
+            questionBox.innerHTML = ''; // Clear previous question
+
+            // Display first fraction/whole number
+            if (den1 === 1) {
+                questionBox.innerHTML += `<span class="text-3xl">${num1}</span>`;
+            } else {
+                questionBox.innerHTML += `
+                    <div class="fraction-display">
+                        <span class="fraction-numerator">${num1}</span>
+                        <div class="fraction-line"></div>
+                        <span class="fraction-denominator">${den1}</span>
+                    </div>`;
+            }
+
+            questionBox.innerHTML += `<span class="text-3xl mx-4">&times;</span>`;
+
+            // Display second fraction/whole number
+            if (den2 === 1) {
+                questionBox.innerHTML += `<span class="text-3xl">${num2}</span>`;
+            } else {
+                questionBox.innerHTML += `
+                    <div class="fraction-display">
+                        <span class="fraction-numerator">${num2}</span>
+                        <div class="fraction-line"></div>
+                        <span class="fraction-denominator">${den2}</span>
+                    </div>`;
+            }
+
+            // Calculate the correct answer
+            let resultNumerator = num1 * num2;
+            let resultDenominator = den1 * den2;
+            const simplifiedResult = simplifyFraction(resultNumerator, resultDenominator);
+
+            currentQuestion = {
+                num1: num1,
+                den1: den1,
+                num2: num2,
+                den2: den2,
+                answerNumerator: simplifiedResult.numerator,
+                answerDenominator: simplifiedResult.denominator
+            };
+
+            document.getElementById('answerNumerator').value = '';
+            document.getElementById('answerDenominator').value = '';
+            document.getElementById('feedbackMessage').textContent = '';
+        }
+
+        // Function to check the user's answer
+        function checkAnswer() {
+            const userAnswerNum = parseInt(document.getElementById('answerNumerator').value);
+            const userAnswerDen = parseInt(document.getElementById('answerDenominator').value);
+            const feedbackMessage = document.getElementById('feedbackMessage');
+
+            // Input validation
+            if (isNaN(userAnswerNum) || isNaN(userAnswerDen)) {
+                showModal("Please enter both numerator and denominator.");
+                return;
+            }
+            if (userAnswerDen === 0) {
+                showModal("Denominator cannot be zero.");
+                return;
+            }
+
+            totalQuestions++;
+
+            // Simplify user's answer for comparison
+            const simplifiedUserAnswer = simplifyFraction(userAnswerNum, userAnswerDen);
+
+            if (simplifiedUserAnswer.numerator === currentQuestion.answerNumerator &&
+                simplifiedUserAnswer.denominator === currentQuestion.answerDenominator) {
+                feedbackMessage.textContent = "Correct! Well done!";
+                feedbackMessage.className = 'feedback-message feedback-correct';
+                score++;
+            } else {
+                feedbackMessage.textContent = `Incorrect. The correct answer is ${currentQuestion.answerNumerator}/${currentQuestion.answerDenominator}.`;
+                feedbackMessage.className = 'feedback-message feedback-incorrect';
+            }
+
+            updateScoreDisplay();
+            setTimeout(generateQuestion, 2000); // Generate new question after 2 seconds
+        }
+
+        // Function to update the score display
+        function updateScoreDisplay() {
+            document.getElementById('scoreDisplay').textContent = `Score: ${score} / ${totalQuestions}`;
+        }
+
+        // Event listeners
+        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+        document.getElementById('answerNumerator').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('answerDenominator').focus();
+            }
+        });
+        document.getElementById('answerDenominator').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Initialize the game when the window loads
+        window.onload = function() {
+            generateQuestion();
+            updateScoreDisplay();
+        };
+    </script>
+</body>
+</html>
